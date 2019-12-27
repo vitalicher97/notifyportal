@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notify Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+<div class="container-fluid">
+
+    <h1 class="text-center mt-4">Service for email notification</h1>
+    <p class="text-center">This service will notify you if your document licence agreement will expire soon</p>
+
+    <br>
+
+    <div class="d-flex justify-content-center">
+        <div th:if="${message} != null" class="alert alert-success alert-dismissible fade show col-6" role="alert">
+            <div th:text="${message}"></div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+
+    <br>
+
+
+    <div class="container text-monospace">
+
+        <div class="row">
+            <div class="col-9">
+
+                <button type="button" class="btn btn-outline-info"
+                        data-toggle="collapse" data-target="#uploadForm">Open add document form
+                </button>
+                <form method="post" enctype="multipart/form-data" action="/doc-save" id="uploadForm"
+                      class="collapse">
+                    <br>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="fileName">Input doc name:</label>
+                        <div class="col-auto">
+                            <input class="form-control-file" type="text" id="fileName" placeholder="Doc file name"
+                                   name="fileName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="agr">Choose agreement:</label>
+                        <div th:if="${not #lists.isEmpty(agreementsList)}" class="col-auto">
+                            <select multiple class="form-control" id="agr" name="agr" required>
+                                <option th:each="item : ${agreementsList}" th:value="${item.getAgrID()}" th:text="${itemStat.count} + '. ' +
+                        ${item.getAgrName()} + ' | ' + ${item.getCompName()} + ' | ' +
+                        ${item.getExpDate()}"></option>
+                            </select>
+                        </div>
+                        <div th:if="${#lists.isEmpty(agreementsList)}">
+                            <div class="bg-danger text-white" th:text="'There are no agreements in database! ' +
+                            'At first, you should add at least one agreement!'"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="name">Full name:</label>
+                        <div class="col-auto">
+                            <input class="form-control" type="text" id="name" placeholder="Your full name"
+                                   name="name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="email">Your email:</label>
+                        <div class="col-auto">
+                            <input class="form-control" type="email" id="email" placeholder="Email"
+                                   name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-auto col-form-label">
+                            <button type="submit" class="btn btn-outline-success">Save data</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="col-3">
+
+                <form action="/notify-send" method="post">
+                    <button type="submit" class="btn btn-outline-danger">Send notification!</button>
+                </form>
+                <br>
+                <form action="/delete-docs-users" method="post">
+                    <button onclick="return confirm('Delete all docs and users?')" type="submit"
+                            class="btn btn-outline-danger">Delete all docs and users!
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-9">
+
+                <br>
+                <button type="button" class="btn btn-outline-info"
+                        data-toggle="collapse" data-target="#storeAgreement">Open add agreement form
+                </button>
+                <form method="post" enctype="multipart/form-data" action="/agr-save" id="storeAgreement"
+                      class="collapse">
+                    <br>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="agrName">Agreement name:</label>
+                        <div class="col-auto">
+                            <input class="form-control-file" type="text" id="agrName" placeholder="Agreement name"
+                                   name="agrName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="compName">Company name:</label>
+                        <div class="col-auto">
+                            <input class="form-control-file" type="text" id="compName" placeholder="Company name"
+                                   name="compName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label" for="expDate">Expiration date:</label>
+                        <div class="col-auto">
+                            <input class="form-control-file" type="date" id="expDate"
+                                   placeholder="Expiration date"
+                                   name="expDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-auto col-form-label">
+                            <button type="submit" class="btn btn-outline-success">Save data</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="col-3">
+
+                <br>
+                <form action="/delete-all" method="post">
+                    <button onclick="return confirm('All agreements, docs and persons will be deleted!! Delete?')"
+                            type="submit"
+                            class="btn btn-outline-danger">Delete ALL!
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div style="position: fixed; top: 0px">
+    Web application designed by Vitalii Chernetskyi<br>
+    Email: vitalicher@gmail.com<br>
+    Instagram: <a href="https://www.instagram.com/vitalicher97/">vitalicher97</a>
+</div>
+
+<div>
+    <p>Service provide email notification if licence expire in two weeks from current date.</p>
+    <p>Instruction:</p>
+    <ol>
+        <li>If there no agreements in database, add agreement (Open add agreement form button);</li>
+        <li>Add document (Open add document form button);</li>
+        <li>"Send notification!" button will send email notification for those persons that use licence
+            (appended to their docs) that expire not later than in two weeks from current date.</li>
+    </ol>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>
